@@ -43,26 +43,13 @@ struct ContentView: View {
     // The single expression field — the whole point of the app.
     private var inputRow: some View {
         HStack(spacing: 10) {
-            Image(systemName: "leaf.fill")
-                .foregroundColor(accent)
-                .font(.system(size: 15))
-
-            ZStack(alignment: .leading) {
-                // Explicit placeholder so it's always readable in light mode.
-                if expression.isEmpty {
-                    Text("Type an expression…  e.g. sin(pi/2) + sqrt(16)")
-                        .font(.system(size: 20, weight: .regular, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .allowsHitTesting(false)
-                }
-                TextField("", text: $expression)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 20, weight: .regular, design: .rounded))
-                    .foregroundColor(.primary)
-                    .focused($fieldFocused)
-                    .onChange(of: expression) { _ in liveEvaluate() }
-                    .onSubmit { commit() }
-            }
+            TextField("", text: $expression)
+                .textFieldStyle(.plain)
+                .font(.system(size: 20, weight: .regular, design: .rounded))
+                .foregroundColor(.primary)
+                .focused($fieldFocused)
+                .onChange(of: expression) { _ in liveEvaluate() }
+                .onSubmit { commit() }
 
             if !expression.isEmpty {
                 Button {
