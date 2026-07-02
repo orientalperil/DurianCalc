@@ -69,7 +69,7 @@ struct ContentView: View {
     private var resultRow: some View {
         HStack {
             Text(isError ? "⚠︎" : "=")
-                .foregroundColor(isError ? .orange : accent)
+                .foregroundColor(isError ? .orange : .primary)
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
             Text(result)
                 .font(.system(size: 22, weight: .medium, design: .rounded))
