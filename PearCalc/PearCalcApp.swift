@@ -38,7 +38,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         let panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 440, height: 80),
-            styleMask: [.utilityWindow, .titled, .closable],  // <- thin title bar
+            // `.resizable` enables the resize behavior; we then lock the height
+            // (see contentMin/MaxSize below) so only the width can change.
+            styleMask: [.utilityWindow, .titled, .closable, .resizable],  // <- thin title bar
             backing: .buffered,
             defer: false
         )
@@ -64,6 +66,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.center()
         panel.makeKeyAndOrderFront(nil)
 
+        // Don't let the window be dragged narrower than the content can sensibly
+        // shrink. Height is governed live in windowWillResize(_:to:).
+        panel.contentMinSize = NSSize(width: 320, height: 0)
+
         self.panel = panel
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -78,6 +84,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     // where AppKit hasn't yet counted our panel as visible — so it reports the
     // last window as closed and terminates the app before it appears. Keying
     // termination off the panel's own close sidesteps that race.
+    // Allow horizontal resizing only. We can't just lock the height to a fixed
+    // number, because the content's natural height changes as the result row
+    // appears/disappears. So on every resize we take the user's proposed width
+    // but override the height with whatever the content currently needs. This
+    // keeps the top edge anchored instead of letting the frame jump.
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+        guard let content = sender.contentView else { return frameSize }
+        let chrome = sender.frame.height - content.frame.height  // title bar height
+        let desiredContentHeight = content.fittingSize.height
+        return NSSize(width: frameSize.width, height: desiredContentHeight + chrome)
+    }
+
     func windowWillClose(_ notification: Notification) {
         if (notification.object as? NSWindow) === panel {
             NSApp.terminate(nil)

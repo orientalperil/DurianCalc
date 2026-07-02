@@ -35,7 +35,7 @@ struct ContentView: View {
                 .stroke(Color.black.opacity(0.12), lineWidth: 1)
         )
         .padding(10)
-        .frame(width: 440)
+        .frame(minWidth: 320)
         .background(EscKeyHandler { clearAll() })   // ESC anywhere clears.
         .onAppear { fieldFocused = true }
     }
