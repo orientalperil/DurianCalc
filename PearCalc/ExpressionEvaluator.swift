@@ -11,6 +11,10 @@ import Foundation
 ///   power      := postfix ("^" unary)?         // right-associative
 ///   postfix    := primary "%"*
 ///   primary    := number | constant | ident "(" expression ")" | "(" expression ")"
+///
+/// A trailing `%` divides by 100, but when it follows a `+` or `-` it is
+/// interpreted as a percentage *of the left operand* — the familiar
+/// calculator behaviour where `100 + 10%` is `110`, not `100.1`.
 struct ExpressionEvaluator {
 
     enum EvalError: Error, LocalizedError {
@@ -141,6 +145,12 @@ struct ExpressionEvaluator {
         let constants: [String: Double]
         var pos = 0
 
+        /// Set by `parsePostfix` when the most recently parsed operand ended
+        /// in a trailing `%` that was *not* subsequently combined with another
+        /// operator. `parseExpression` uses this to give `x + y%` its
+        /// calculator meaning: "y percent of x" rather than a bare `y/100`.
+        var lastWasPercent = false
+
         init(tokens: [Token], constants: [String: Double]) {
             self.tokens = tokens
             self.constants = constants
@@ -165,7 +175,11 @@ struct ExpressionEvaluator {
             while let tok = current, tok == .plus || tok == .minus {
                 pos += 1
                 let rhs = try parseTerm()
-                value = (tok == .plus) ? value + rhs : value - rhs
+                // `x + y%` means "add y percent *of x*", i.e. x + x*(y/100).
+                // `rhs` already holds y/100 from the trailing `%`, so the
+                // extra factor is just the accumulated left value.
+                let delta = lastWasPercent ? value * rhs : rhs
+                value = (tok == .plus) ? value + delta : value - delta
             }
             return value
         }
@@ -191,6 +205,10 @@ struct ExpressionEvaluator {
                 } else {
                     break
                 }
+                // A product/quotient/remainder is a concrete value, not a
+                // pending percentage — clear the flag so an enclosing `+`/`-`
+                // treats it literally.
+                lastWasPercent = false
             }
             return value
         }
@@ -216,6 +234,7 @@ struct ExpressionEvaluator {
             if current == .caret {
                 pos += 1
                 let exponent = try parseUnary()
+                lastWasPercent = false
                 return pow(base, exponent)
             }
             return base
@@ -224,10 +243,13 @@ struct ExpressionEvaluator {
         // postfix := primary "%"?   — trailing percent means "divide by 100"
         mutating func parsePostfix() throws -> Double {
             var value = try parsePrimary()
+            var isPercent = false
             while current == .percent {
                 pos += 1
                 value /= 100
+                isPercent = true
             }
+            lastWasPercent = isPercent
             return value
         }
 

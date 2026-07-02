@@ -12,6 +12,7 @@
 		AA0000000000000000000003 /* ExpressionEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* ExpressionEvaluator.swift */; };
 		AA0000000000000000000004 /* ShortcutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000004 /* ShortcutStore.swift */; };
 		AA0000000000000000000005 /* ShortcutsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* ShortcutsView.swift */; };
+		AA0000000000000000000006 /* ExpressionEvaluatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000006 /* ExpressionEvaluatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,10 +22,19 @@
 		BB0000000000000000000003 /* ExpressionEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressionEvaluator.swift; sourceTree = "<group>"; };
 		BB0000000000000000000004 /* ShortcutStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutStore.swift; sourceTree = "<group>"; };
 		BB0000000000000000000005 /* ShortcutsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsView.swift; sourceTree = "<group>"; };
+		BB0000000000000000000006 /* ExpressionEvaluatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressionEvaluatorTests.swift; sourceTree = "<group>"; };
+		CC0000000000000000000002 /* PearCalcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PearCalcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DD0000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD0000000000000000000002 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -38,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				EE0000000000000000000002 /* PearCalc */,
+				EE0000000000000000000004 /* PearCalcTests */,
 				EE0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,8 +69,17 @@
 			isa = PBXGroup;
 			children = (
 				CC0000000000000000000001 /* PearCalc.app */,
+				CC0000000000000000000002 /* PearCalcTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		EE0000000000000000000004 /* PearCalcTests */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000006 /* ExpressionEvaluatorTests.swift */,
+			);
+			path = PearCalcTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -82,7 +102,43 @@
 			productReference = CC0000000000000000000001 /* PearCalc.app */;
 			productType = "com.apple.product-type.application";
 		};
+		FF0000000000000000000002 /* PearCalcTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 110000000000000000000002 /* Build configuration list for PBXNativeTarget "PearCalcTests" */;
+			buildPhases = (
+				220000000000000000000002 /* Sources */,
+				DD0000000000000000000002 /* Frameworks */,
+				330000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				880000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = PearCalcTests;
+			productName = PearCalcTests;
+			productReference = CC0000000000000000000002 /* PearCalcTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		990000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 440000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF0000000000000000000001;
+			remoteInfo = PearCalc;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		880000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF0000000000000000000001 /* PearCalc */;
+			targetProxy = 990000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		440000000000000000000001 /* Project object */ = {
@@ -94,6 +150,10 @@
 				TargetAttributes = {
 					FF0000000000000000000001 = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					FF0000000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = FF0000000000000000000001;
 					};
 				};
 			};
@@ -111,12 +171,20 @@
 			projectRoot = "";
 			targets = (
 				FF0000000000000000000001 /* PearCalc */,
+				FF0000000000000000000002 /* PearCalcTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		330000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		330000000000000000000002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,6 +203,14 @@
 				AA0000000000000000000003 /* ExpressionEvaluator.swift in Sources */,
 				AA0000000000000000000004 /* ShortcutStore.swift in Sources */,
 				AA0000000000000000000005 /* ShortcutsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		220000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000006 /* ExpressionEvaluatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +312,40 @@
 			};
 			name = Release;
 		};
+		770000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.PearCalcTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PearCalc.app/Contents/MacOS/PearCalc";
+			};
+			name = Debug;
+		};
+		770000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.PearCalcTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PearCalc.app/Contents/MacOS/PearCalc";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -253,6 +363,15 @@
 			buildConfigurations = (
 				770000000000000000000001 /* Debug */,
 				770000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		110000000000000000000002 /* Build configuration list for PBXNativeTarget "PearCalcTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				770000000000000000000003 /* Debug */,
+				770000000000000000000004 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
