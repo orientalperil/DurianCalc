@@ -16,7 +16,7 @@ final class ShortcutStore: ObservableObject {
         didSet { save() }
     }
 
-    private let defaultsKey = "pearcalc.shortcuts"
+    private let defaultsKey = "duriancalc.shortcuts"
 
     init() {
         if let data = UserDefaults.standard.data(forKey: defaultsKey),

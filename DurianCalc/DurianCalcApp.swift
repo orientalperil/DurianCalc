@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct PearCalcApp: App {
+struct DurianCalcApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
@@ -44,7 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        panel.title = "pearCalc"
+        panel.title = "DurianCalc"
         panel.titlebarAppearsTransparent = true
         panel.isMovableByWindowBackground = true
         panel.hidesOnDeactivate = false

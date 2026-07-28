@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1500"
-   version = "1.7">
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FF0000000000000000000001"
-               BuildableName = "PearCalc.app"
-               BlueprintName = "PearCalc"
-               ReferencedContainer = "container:PearCalc.xcodeproj">
+               BuildableName = "DurianCalc.app"
+               BlueprintName = "DurianCalc"
+               ReferencedContainer = "container:DurianCalc.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FF0000000000000000000002"
-               BuildableName = "PearCalcTests.xctest"
-               BlueprintName = "PearCalcTests"
-               ReferencedContainer = "container:PearCalc.xcodeproj">
+               BuildableName = "DurianCalcTests.xctest"
+               BlueprintName = "DurianCalcTests"
+               ReferencedContainer = "container:DurianCalc.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FF0000000000000000000001"
-            BuildableName = "PearCalc.app"
-            BlueprintName = "PearCalc"
-            ReferencedContainer = "container:PearCalc.xcodeproj">
+            BuildableName = "DurianCalc.app"
+            BlueprintName = "DurianCalc"
+            ReferencedContainer = "container:DurianCalc.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FF0000000000000000000001"
-            BuildableName = "PearCalc.app"
-            BlueprintName = "PearCalc"
-            ReferencedContainer = "container:PearCalc.xcodeproj">
+            BuildableName = "DurianCalc.app"
+            BlueprintName = "DurianCalc"
+            ReferencedContainer = "container:DurianCalc.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

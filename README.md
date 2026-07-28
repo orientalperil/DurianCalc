@@ -1,4 +1,4 @@
-# PearCalc (clone)
+# DurianCalc (clone)
 
 A minimal, expression-based calculator for macOS, built with SwiftUI —
 inspired by [pearCalc](https://www.pearworks.com/pages/pearcalc.html) by
@@ -12,8 +12,8 @@ space.
 ## Run it
 
 1. Unzip the folder.
-2. Open `PearCalc.xcodeproj` in Xcode 15 or later.
-3. Select the **PearCalc** scheme and press **Run** (⌘R).
+2. Open `DurianCalc.xcodeproj` in Xcode 15 or later.
+3. Select the **DurianCalc** scheme and press **Run** (⌘R).
 
 Requires macOS 13 or later.
 
@@ -57,7 +57,7 @@ expression. They're saved between launches.
 
 ## Files
 
-- `PearCalcApp.swift` — app entry; hosts the UI in an NSPanel utility window
+- `DurianCalcApp.swift` — app entry; hosts the UI in an NSPanel utility window
   (thin title bar), forces light mode, and provides the Settings scene
 - `ContentView.swift` — the single expression field, live result, Esc-to-clear
 - `ExpressionEvaluator.swift` — tokenizer + recursive-descent parser/evaluator

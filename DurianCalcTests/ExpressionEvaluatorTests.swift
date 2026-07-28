@@ -1,5 +1,5 @@
 import XCTest
-@testable import PearCalc
+@testable import DurianCalc
 
 final class ExpressionEvaluatorTests: XCTestCase {
 
