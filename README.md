@@ -1,4 +1,4 @@
-# DurianCalc (clone)
+# DurianCalc
 
 A minimal, expression-based calculator for macOS, built with SwiftUI —
 inspired by [pearCalc](https://www.pearworks.com/pages/pearcalc.html) by
