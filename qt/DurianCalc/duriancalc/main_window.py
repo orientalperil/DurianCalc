@@ -22,7 +22,7 @@ from __future__ import annotations
 import math
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeyEvent
+from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeyEvent, QResizeEvent
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -107,6 +107,13 @@ class MainWindow(QWidget):
         card_layout.addWidget(self._divider)
 
         card_layout.addWidget(self._build_result_row())
+
+        # Without this, the card (Preferred vertical policy, which still
+        # permits growth) would stretch to absorb any leftover height if
+        # the window is ever taller than the content needs -- e.g. a
+        # window manager applying a size before our own resizeEvent
+        # correction runs. The stretch item soaks up that space instead.
+        outer.addStretch(1)
 
         self._set_result_row_visible(False)
         self._field.setFocus()
@@ -211,13 +218,33 @@ class MainWindow(QWidget):
     def _set_result_row_visible(self, visible: bool) -> None:
         self._result_row.setVisible(visible)
         self._divider.setVisible(visible)
-        self._update_fixed_height()
+        self._sync_height()
 
-    def _update_fixed_height(self) -> None:
-        self.setMinimumHeight(0)
-        self.setMaximumHeight(16777215)
-        hint = self.layout().sizeHint().height()
-        self.setFixedHeight(hint)
+    def _sync_height(self) -> None:
+        # QLayout applies its own minimumSize() to the widget as a hard
+        # floor on every activation (that's how "auto-shrinking" layouts
+        # normally work) -- but that floor is stale until the layout is
+        # *activated*, not merely invalidated. Without forcing activation
+        # here, resize() below would silently clamp back up to the old
+        # (pre-hide) minimum height whenever the result row had just been
+        # hidden, which is exactly the "field gets taller and stays there"
+        # bug this guards against.
+        self._card.layout().activate()
+        self.layout().activate()
+        target = self.layout().sizeHint().height()
+        if self.height() != target:
+            self.resize(self.width(), target)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802
+        # Allow horizontal resizing only. There's no Qt hook to veto a
+        # proposed size before it's applied (unlike NSPanel's
+        # windowWillResize), so instead we let the resize happen and
+        # immediately correct the height -- this converges in one extra
+        # resizeEvent and keeps the top edge anchored.
+        super().resizeEvent(event)
+        target = self.layout().sizeHint().height()
+        if event.size().height() != target:
+            self.resize(event.size().width(), target)
 
     # -- Lifecycle -----------------------------------------------------
 
