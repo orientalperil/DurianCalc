@@ -80,7 +80,14 @@ class MainWindow(QWidget):
         self._is_error = False
 
         self.setWindowTitle("DurianCalc")
-        self.setWindowFlags(self.windowFlags() | Qt.Tool)
+        # Qt.WindowStaysOnTopHint is what KDE/X11 surfaces as the "Keep
+        # Above Others" window-menu toggle. It only works under X11 --
+        # Wayland's xdg-shell protocol deliberately has no client-side
+        # always-on-top request (only the compositor/user can do that), so
+        # this hint is silently ignored under KWin Wayland. Getting the
+        # same effect there needs a KWin Window Rule instead; see the
+        # README's "Always-on-top on Wayland" section.
+        self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
         self.setMinimumWidth(320)
         self.resize(440, 80)
 

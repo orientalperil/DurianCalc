@@ -42,6 +42,23 @@ def _force_light_palette(app: QApplication) -> None:
 def main() -> int:
     QApplication.setOrganizationName("DurianCalc")
     QApplication.setApplicationName("DurianCalc")
+    # Sets the Wayland app_id / X11 WM_CLASS to "duriancalc" -- without
+    # this, QtWaylandClient falls back to the interpreter's own binary
+    # name ("python3.14"), since a Poetry console-script entry point is
+    # just a Python script run BY python3.14, not a distinctly-named
+    # executable. A generic interpreter-wide app_id makes window matching
+    # (e.g. a KWin Window Rule -- see README's "Always-on-top on Wayland")
+    # unusable, since every Python/Qt app sharing that interpreter would
+    # match the same rule.
+    #
+    # Trade-off: this also makes Qt attempt xdg-desktop-portal
+    # registration, which logs a harmless "App info not found for
+    # 'duriancalc'" warning until packaging/duriancalc.desktop is
+    # installed somewhere on $XDG_DATA_DIRS/applications (true for any
+    # dev checkout; resolved by the AppImage or a real install). The
+    # warning is cosmetic -- the app_id is still set correctly regardless
+    # of whether portal registration succeeds.
+    QApplication.setDesktopFileName("duriancalc")
 
     app = QApplication(sys.argv)
     # We decide when to quit ourselves (see MainWindow.closeEvent), the same

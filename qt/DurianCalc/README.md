@@ -68,6 +68,41 @@ currency conversion (`usd`, `eur`, …) or personal constants. Use them by name 
 any expression. They're saved between launches, in
 `~/.config/DurianCalc/DurianCalc.conf`.
 
+## Always-on-top on Wayland
+
+The window opens pinned above other windows on X11 — KDE's "Keep Above
+Others" toggle. Under Wayland (the default in modern Plasma), this doesn't
+work: xdg-shell, the protocol Wayland windows use, deliberately gives clients
+no way to request always-on-top for themselves, so only the compositor (or
+you, manually) can set it.
+
+To get the same effect automatically on Wayland, add a one-time KWin Window
+Rule:
+
+1. **System Settings → Window Management → Window Rules → Add New…**
+2. **Window class (application):** `duriancalc` — **Match whole window
+   class**
+3. Add property **Keep above** → **Force** → **Yes**
+
+The app explicitly sets its Wayland app ID / X11 WM_CLASS to `duriancalc`
+(`QApplication.setDesktopFileName`), so this rule matches regardless of how
+it's launched. Without that call the app_id falls back to the Python
+interpreter's own name (e.g. `python3.14`) — far too general to build a
+window rule on, since it'd match every Python/Qt app on the system.
+
+That call also makes Qt attempt to register with `xdg-desktop-portal`, which
+logs a harmless warning —
+`App info not found for 'duriancalc'` — until `packaging/duriancalc.desktop`
+is installed somewhere on `$XDG_DATA_DIRS/applications`. It doesn't affect
+the app_id or anything else; to silence it in development, symlink the
+desktop file in:
+
+```bash
+ln -s "$PWD/packaging/duriancalc.desktop" ~/.local/share/applications/duriancalc.desktop
+```
+
+(A real AppImage or system install resolves this on its own.)
+
 ## Files
 
 - `duriancalc/app.py` — app entry; creates the QApplication and the utility
