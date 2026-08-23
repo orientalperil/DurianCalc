@@ -26,7 +26,7 @@ See [PORTING.md](PORTING.md) for how the two relate.
    poetry run duriancalc
    ```
 
-Requires Python 3.9 or later. On Qt 6.5+ you may also need your distribution's
+Requires Python 3.10 or later. On Qt 6.5+ you may also need your distribution's
 `libxcb-cursor0` package if the app fails to start with a platform-plugin error.
 
 ## How to use

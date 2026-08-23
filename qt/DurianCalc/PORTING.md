@@ -227,7 +227,8 @@ integration. Record the choice in the README so it is not re-litigated.
 | `ruff` | dev | Optional, but cheap to add now |
 | `pyinstaller` | dev | Build-time only; must not land in the runtime env |
 
-Target Python 3.9+. Commit `poetry.lock`. Declare a `duriancalc` console entry
+Target Python 3.10+ (the floor `PySide6-Essentials` itself requires). Commit
+`poetry.lock`. Declare a `duriancalc` console entry
 point so `poetry run duriancalc` works from Phase 0 onward.
 
 ### AppImage strategy

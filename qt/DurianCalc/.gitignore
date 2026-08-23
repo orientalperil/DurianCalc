@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Poetry
+.venv/
+
+# PyInstaller / AppImage build output
+/build/
+/dist/
+*.spec

@@ -1,0 +1,29 @@
+[project]
+name = "duriancalc"
+version = "0.1.0"
+description = "A minimal, expression-based calculator (Qt/PySide6 port of the macOS DurianCalc)"
+authors = [{ name = "Kevin Tran" }]
+readme = "README.md"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+    "PySide6-Essentials (>=6.11,<7.0)",
+]
+
+[project.scripts]
+duriancalc = "duriancalc.app:main"
+
+[tool.poetry]
+packages = [{ include = "duriancalc" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+ruff = "^0.6"
+pyinstaller = "^6.10"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=DurianCalc
+Comment=A minimal, expression-based calculator
+Exec=duriancalc
+Icon=duriancalc
+Categories=Utility;Calculator;Qt;
+Terminal=false
+StartupNotify=true
