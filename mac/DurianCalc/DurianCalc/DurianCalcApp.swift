@@ -12,7 +12,6 @@ struct DurianCalcApp: App {
         Settings {
             ShortcutsView()
                 .environmentObject(appDelegate.shortcuts)
-                .preferredColorScheme(.light)
         }
     }
 }
@@ -30,7 +29,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         let root = ContentView()
             .environmentObject(shortcuts)
-            .preferredColorScheme(.light)   // Always light mode.
 
         let hosting = NSHostingView(rootView: root)
         // Let the panel size itself to the SwiftUI content.
@@ -50,7 +48,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
         panel.becomesKeyOnlyIfNeeded = false
-        panel.appearance = NSAppearance(named: .aqua)  // Force light chrome.
         panel.delegate = self  // So we can quit when the panel itself closes.
 
         // Wrap the hosting view so the panel hugs the content height.

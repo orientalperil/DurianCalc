@@ -58,7 +58,8 @@ expression. They're saved between launches.
 ## Files
 
 - `DurianCalcApp.swift` — app entry; hosts the UI in an NSPanel utility window
-  (thin title bar), forces light mode, and provides the Settings scene
+  (thin title bar) and provides the Settings scene. Follows the system
+  light/dark appearance.
 - `ContentView.swift` — the single expression field, live result, Esc-to-clear
 - `ExpressionEvaluator.swift` — tokenizer + recursive-descent parser/evaluator
 - `ShortcutStore.swift` — user-defined shortcuts, persisted to UserDefaults
