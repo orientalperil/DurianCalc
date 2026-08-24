@@ -1,5 +1,6 @@
 """App entry point: creates the QApplication and the utility window, forces
-light mode, and wires up Ctrl+, for Preferences.
+light mode, and connects the window's File > Settings action to the
+Preferences dialog.
 
 Port of ../../mac/DurianCalc/DurianCalc/DurianCalcApp.swift. There the
 AppDelegate builds an NSPanel and owns the ShortcutStore; here QApplication
@@ -12,8 +13,7 @@ from __future__ import annotations
 
 import sys
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QPalette, QShortcut
+from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
 from duriancalc.main_window import MainWindow
@@ -78,7 +78,7 @@ def main() -> int:
         preferences.raise_()
         preferences.activateWindow()
 
-    QShortcut(Qt.CTRL | Qt.Key_Comma, window, activated=open_preferences)
+    window.settings_requested.connect(open_preferences)
 
     window.show()
     return app.exec()

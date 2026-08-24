@@ -11,10 +11,16 @@ Window-chrome fidelity notes (see PORTING.md section 5):
 - Esc-to-clear needs a plain QWidget top level, not QDialog -- QDialog
   swallows Escape as a reject-and-close, which is the exact trap the
   Swift EscKeyHandler exists to work around, in a different costume.
-- Height is locked and recomputed whenever the result row's visibility
-  changes (via setFixedHeight against the layout's own size hint), so only
-  the width is user-resizable -- mirroring windowWillResize(_:to:) in
-  DurianCalcApp.swift without needing to intercept every resize event.
+- Height is recomputed whenever the result row's visibility changes and
+  pinned via a resizeEvent guard, so only the width is user-resizable --
+  mirroring windowWillResize(_:to:) in DurianCalcApp.swift. See
+  _sync_height's docstring for why layout activation (not just
+  invalidation) is required.
+- The File/Edit menu bar has no Swift equivalent -- the mac version's
+  Settings live in a separate SwiftUI Scene reached via the system-provided
+  Cmd+, shortcut, which Linux has no equivalent standing convention for.
+  Discoverability needed an explicit affordance instead (see PORTING.md
+  section 5's note on this).
 """
 
 from __future__ import annotations
@@ -22,13 +28,21 @@ from __future__ import annotations
 import math
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeyEvent, QResizeEvent
+from PySide6.QtGui import (
+    QAction,
+    QCloseEvent,
+    QGuiApplication,
+    QKeyEvent,
+    QKeySequence,
+    QResizeEvent,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenuBar,
     QSizePolicy,
     QToolButton,
     QVBoxLayout,
@@ -73,6 +87,8 @@ def format_value(value: float) -> str:
 
 
 class MainWindow(QWidget):
+    settings_requested = Signal()
+
     def __init__(self, shortcuts: ShortcutStore, parent: QWidget | None = None):
         super().__init__(parent)
         self._shortcuts = shortcuts
@@ -91,11 +107,18 @@ class MainWindow(QWidget):
         self.setMinimumWidth(320)
         self.resize(440, 80)
 
-        outer = QVBoxLayout(self)
+        # The menu bar sits outside the padded content area, so root has no
+        # margins of its own -- the padding lives on `content` instead.
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+
+        self._content = content = QWidget(self)
+        outer = QVBoxLayout(content)
         outer.setContentsMargins(10, 10, 10, 10)
         outer.setSpacing(0)
 
-        self._card = QFrame(self)
+        self._card = QFrame(content)
         self._card.setObjectName("card")
         self._card.setStyleSheet(
             "#card { background: palette(base); border: 1px solid rgba(0, 0, 0, 0.12);"
@@ -122,10 +145,59 @@ class MainWindow(QWidget):
         # correction runs. The stretch item soaks up that space instead.
         outer.addStretch(1)
 
+        # Built after _build_input_row() above so self._field already
+        # exists -- the Edit menu's actions operate on it directly.
+        root.addWidget(self._build_menu_bar())
+        root.addWidget(content)
+
         self._set_result_row_visible(False)
         self._field.setFocus()
 
     # -- UI construction -------------------------------------------------
+
+    def _build_menu_bar(self) -> QMenuBar:
+        menu_bar = QMenuBar(self)
+
+        file_menu = menu_bar.addMenu("&File")
+        settings_action = QAction("&Settings…", self)
+        settings_action.setShortcut(QKeySequence("Ctrl+,"))
+        settings_action.triggered.connect(self.settings_requested.emit)
+        file_menu.addAction(settings_action)
+        file_menu.addSeparator()
+        quit_action = QAction("&Quit", self)
+        quit_action.setShortcut(QKeySequence.Quit)
+        quit_action.triggered.connect(self.close)
+        file_menu.addAction(quit_action)
+
+        edit_menu = menu_bar.addMenu("&Edit")
+        undo_action = QAction("&Undo", self)
+        undo_action.setShortcut(QKeySequence.Undo)
+        undo_action.triggered.connect(self._field.undo)
+        edit_menu.addAction(undo_action)
+        redo_action = QAction("&Redo", self)
+        redo_action.setShortcut(QKeySequence.Redo)
+        redo_action.triggered.connect(self._field.redo)
+        edit_menu.addAction(redo_action)
+        edit_menu.addSeparator()
+        cut_action = QAction("Cu&t", self)
+        cut_action.setShortcut(QKeySequence.Cut)
+        cut_action.triggered.connect(self._field.cut)
+        edit_menu.addAction(cut_action)
+        copy_action = QAction("&Copy", self)
+        copy_action.setShortcut(QKeySequence.Copy)
+        copy_action.triggered.connect(self._field.copy)
+        edit_menu.addAction(copy_action)
+        paste_action = QAction("&Paste", self)
+        paste_action.setShortcut(QKeySequence.Paste)
+        paste_action.triggered.connect(self._field.paste)
+        edit_menu.addAction(paste_action)
+        edit_menu.addSeparator()
+        select_all_action = QAction("Select &All", self)
+        select_all_action.setShortcut(QKeySequence.SelectAll)
+        select_all_action.triggered.connect(self._field.selectAll)
+        edit_menu.addAction(select_all_action)
+
+        return menu_bar
 
     def _build_input_row(self) -> QWidget:
         row = QWidget(self._card)
@@ -235,8 +307,14 @@ class MainWindow(QWidget):
         # here, resize() below would silently clamp back up to the old
         # (pre-hide) minimum height whenever the result row had just been
         # hidden, which is exactly the "field gets taller and stays there"
-        # bug this guards against.
+        # bug this guards against. This has to happen at every nesting
+        # level between the widget whose visibility changed and self --
+        # activating only the two ends of the chain (card_layout and
+        # root) left the middle level's (content's) cached floor stale
+        # and reintroduced the bug when the menu bar's extra nesting was
+        # added.
         self._card.layout().activate()
+        self._content.layout().activate()
         self.layout().activate()
         target = self.layout().sizeHint().height()
         if self.height() != target:
