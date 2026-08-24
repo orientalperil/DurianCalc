@@ -73,6 +73,12 @@ final class ExpressionEvaluatorTests: XCTestCase {
         assertEval("10 mod 2", 0)
     }
 
+    // Floored modulo: sign follows the divisor, matching Python's `%`.
+    func testModuloSignFollowsDivisor() {
+        assertEval("-10 mod 3", 2)
+        assertEval("10 mod -3", -2)
+    }
+
     // MARK: Constants
 
     func testConstants() {

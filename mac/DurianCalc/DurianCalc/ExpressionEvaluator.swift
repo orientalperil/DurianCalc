@@ -201,7 +201,13 @@ struct ExpressionEvaluator {
                     pos += 1
                     let rhs = try parseUnary()
                     guard rhs != 0 else { throw EvalError.divisionByZero }
-                    value = value.truncatingRemainder(dividingBy: rhs)
+                    // Floored modulo (sign follows the divisor, like
+                    // Python's `%`), not truncatingRemainder(dividingBy:)
+                    // (sign follows the dividend, like C's fmod). Chosen
+                    // deliberately so `-10 mod 3` reads as `2`, matching
+                    // the usual "which residue class" intuition, and so
+                    // this matches the Qt port's evaluator exactly.
+                    value = value - rhs * (value / rhs).rounded(.down)
                 } else {
                     break
                 }

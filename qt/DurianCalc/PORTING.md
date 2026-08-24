@@ -76,17 +76,26 @@ docstring describing the grammar, so the two files stay diffable.
 These five differences will silently produce wrong answers if missed. Each one
 is covered by an existing test, which is why Phase 1 ports the tests first.
 
-### 3.1 `mod` — use `math.fmod`, not `%`
+### 3.1 `mod` — floored, sign follows the divisor
 
 Swift's `truncatingRemainder(dividingBy:)` is C `fmod`: the sign follows the
-**dividend**. Python's `%` operator follows the **divisor**.
+**dividend**. Python's `%` operator is floored: the sign follows the
+**divisor**, which is what most people mean by "mod" unqualified (`-10 mod 3`
+lands on the residue class `2`, the same way 2 hours before 12 o'clock reads
+as 10, not -2).
 
-| Expression   | Swift (correct) | Python `%` (wrong) | `math.fmod` |
-| ------------ | --------------- | ------------------ | ----------- |
-| `-10 mod 3`  | `-1`            | `2`                | `-1`        |
-| `10 mod -3`  | `1`             | `-2`               | `1`         |
+Both evaluators deliberately use the floored convention, so they agree with
+each other and with Python's own `%`:
 
-Use `math.fmod`. Keep the divide-by-zero guard ahead of it.
+| Expression   | Floored (both evaluators) | C `fmod` (not used) |
+| ------------ | -------------------------- | -------------------- |
+| `-10 mod 3`  | `2`                        | `-1`                 |
+| `10 mod -3`  | `-2`                       | `1`                  |
+
+In Python, `%` already does this — use it directly, no `math.fmod`. In
+Swift, `Double` has no built-in floored-mod, so it's implemented as
+`value - rhs * (value / rhs).rounded(.down)`. Keep the divide-by-zero guard
+ahead of it in both.
 
 ### 3.2 `round()` — Python rounds half-to-even
 

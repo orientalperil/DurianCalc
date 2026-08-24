@@ -347,7 +347,11 @@ class _Parser:
                 rhs = self.parse_unary()
                 if rhs == 0:
                     raise DivisionByZeroError()
-                value = math.fmod(value, rhs)
+                # Floored modulo: sign follows the divisor (`-10 mod 3` is
+                # `2`), which is what Python's `%` already does. The mac
+                # Swift evaluator deliberately matches this too -- see
+                # PORTING.md section 3.1.
+                value = value % rhs
             else:
                 break
             # A product/quotient/remainder is a concrete value, not a

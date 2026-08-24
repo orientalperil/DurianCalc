@@ -83,12 +83,13 @@ def test_modulo(evaluator):
     assert_eval(evaluator, "10 mod 2", 0)
 
 
-def test_modulo_sign_follows_dividend(evaluator):
-    """Swift's truncatingRemainder(dividingBy:) is C fmod: sign follows the
-    dividend, not the divisor as Python's `%` does. See PORTING.md 3.1.
+def test_modulo_sign_follows_divisor(evaluator):
+    """Floored modulo: sign follows the divisor, matching Python's `%`.
+    The mac Swift evaluator deliberately matches this too. See
+    PORTING.md 3.1.
     """
-    assert_eval(evaluator, "-10 mod 3", -1)
-    assert_eval(evaluator, "10 mod -3", 1)
+    assert_eval(evaluator, "-10 mod 3", 2)
+    assert_eval(evaluator, "10 mod -3", -2)
 
 
 # --- Constants ------------------------------------------------------------
