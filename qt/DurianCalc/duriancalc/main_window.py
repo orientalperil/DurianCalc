@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import math
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import (
     QAction,
     QCloseEvent,
@@ -54,6 +54,8 @@ from duriancalc.shortcuts import ShortcutStore
 from duriancalc.theme import colors as theme_colors
 
 _ERROR_COLOR = "#D9822B"  # matches SwiftUI's .orange in this context
+_COPY_SUCCESS_COLOR = "#5C9E33"  # the app's own accent green
+_COPY_FEEDBACK_MS = 900
 
 
 def _card_style() -> str:
@@ -68,6 +70,10 @@ def _divider_style() -> str:
 def _field_style() -> str:
     c = theme_colors()
     return f"background: {c['base']}; color: {c['text']}; border: none;"
+
+
+def _copy_button_style() -> str:
+    return f"color: {theme_colors()['text']}; border: none;"
 
 
 class _ExpressionLineEdit(QLineEdit):
@@ -256,6 +262,11 @@ class MainWindow(QWidget):
 
         self._copy_button = QToolButton(row)
         self._copy_button.setText("⧉")
+        copy_font = self._copy_button.font()
+        copy_font.setPointSize(copy_font.pointSize() + 6)
+        self._copy_button.setFont(copy_font)
+        self._copy_button.setStyleSheet(_copy_button_style())
+        self._copy_button.setCursor(Qt.PointingHandCursor)
         self._copy_button.setToolTip("Copy result")
         self._copy_button.setAutoRaise(True)
         self._copy_button.clicked.connect(self._copy_result)
@@ -295,6 +306,22 @@ class MainWindow(QWidget):
 
     def _copy_result(self) -> None:
         QGuiApplication.clipboard().setText(self._result_text)
+        self._show_copy_feedback()
+
+    def _show_copy_feedback(self) -> None:
+        # A checkmark swap confirms *what* happened, not just that
+        # something did -- clearer than a plain fade for a one-shot
+        # action like this. Reverts on its own after a beat; if the
+        # button gets hidden in the meantime (e.g. the field was
+        # cleared), the timer still fires harmlessly against a hidden
+        # widget and it's simply correct next time it's shown.
+        self._copy_button.setText("✓")
+        self._copy_button.setStyleSheet(f"color: {_COPY_SUCCESS_COLOR}; border: none;")
+        QTimer.singleShot(_COPY_FEEDBACK_MS, self._revert_copy_button)
+
+    def _revert_copy_button(self) -> None:
+        self._copy_button.setText("⧉")
+        self._copy_button.setStyleSheet(_copy_button_style())
 
     def _set_result(self, text: str, *, is_error: bool) -> None:
         self._result_text = text
@@ -324,6 +351,7 @@ class MainWindow(QWidget):
         self._card.setStyleSheet(_card_style())
         self._divider.setStyleSheet(_divider_style())
         self._field.setStyleSheet(_field_style())
+        self._copy_button.setStyleSheet(_copy_button_style())
         self._apply_result_color()
 
     def _set_result_row_visible(self, visible: bool) -> None:
