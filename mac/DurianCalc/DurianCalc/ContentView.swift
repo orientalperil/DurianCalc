@@ -32,7 +32,10 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.black.opacity(0.12), lineWidth: 1)
+                // .separatorColor is the semantic hairline-border color --
+                // unlike a fixed black opacity, it's designed to stay
+                // visible against both a light and a dark background.
+                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
         )
         .padding(10)
         .frame(minWidth: 320)
