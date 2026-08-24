@@ -106,7 +106,8 @@ ln -s "$PWD/packaging/duriancalc.desktop" ~/.local/share/applications/duriancalc
 ## Files
 
 - `duriancalc/app.py` — app entry; creates the QApplication and the utility
-  window, forces light mode, and opens the Preferences dialog
+  window, and opens the Preferences dialog. Follows the system light/dark
+  appearance.
 - `duriancalc/main_window.py` — the single expression field, live result,
   Esc-to-clear
 - `duriancalc/evaluator.py` — tokenizer + recursive-descent parser/evaluator

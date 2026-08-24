@@ -9,6 +9,7 @@ PORTING.md section 4.
 from __future__ import annotations
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDialog,
@@ -24,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from duriancalc.shortcuts import ShortcutStore
+from duriancalc.theme import colors as theme_colors
 
 _NAME_COL, _VALUE_COL = 0, 1
 
@@ -32,6 +34,10 @@ _HELP_TEXT = (
     "atan, ln, log, log10, log2, sqrt, cbrt, abs, exp, floor, ceil, round, "
     "rad, deg. Operators: + − × ÷ ^ mod %."
 )
+
+
+def _muted_style() -> str:
+    return f"color: {theme_colors()['mid']};"
 
 
 class _ShortcutTableModel(QAbstractTableModel):
@@ -121,8 +127,9 @@ class ShortcutsDialog(QDialog):
             "currency rate or a constant of your own."
         )
         subtitle.setWordWrap(True)
-        subtitle.setStyleSheet("color: palette(mid);")
+        subtitle.setStyleSheet(_muted_style())
         layout.addWidget(subtitle)
+        self._subtitle = subtitle
 
         self._model = _ShortcutTableModel(store, self)
         self._table = QTableView(self)
@@ -150,5 +157,14 @@ class ShortcutsDialog(QDialog):
         small_font = help_label.font()
         small_font.setPointSize(max(small_font.pointSize() - 2, 8))
         help_label.setFont(small_font)
-        help_label.setStyleSheet("color: palette(mid);")
+        help_label.setStyleSheet(_muted_style())
         layout.addWidget(help_label)
+        self._help_label = help_label
+
+        # See theme.py's docstring: a system theme switch while this
+        # dialog is open needs an explicit refresh to pick up correctly.
+        QGuiApplication.styleHints().colorSchemeChanged.connect(self._refresh_theme)
+
+    def _refresh_theme(self) -> None:
+        self._subtitle.setStyleSheet(_muted_style())
+        self._help_label.setStyleSheet(_muted_style())

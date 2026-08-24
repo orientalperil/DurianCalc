@@ -1,42 +1,36 @@
-"""App entry point: creates the QApplication and the utility window, forces
-light mode, and connects the window's File > Settings action to the
-Preferences dialog.
+"""App entry point: creates the QApplication and the utility window, and
+connects the window's File > Settings action to the Preferences dialog.
 
 Port of ../../mac/DurianCalc/DurianCalc/DurianCalcApp.swift. There the
 AppDelegate builds an NSPanel and owns the ShortcutStore; here QApplication
 plays that role, with the equivalent lifecycle decision (quit only when the
 main panel closes -- see MainWindow.closeEvent) made explicit by disabling
 quitOnLastWindowClosed.
+
+Deliberately does NOT force a light palette (the mac version no longer
+forces .preferredColorScheme(.light) either): both apps inherit whatever
+light/dark mode the desktop is set to. The widget code accordingly sticks
+to palette-relative colors (`palette(base)`, `palette(text)`, ...) instead
+of hardcoded hex values -- see main_window.py.
+
+Known gap: main_window.py's QSS `palette(...)` references are resolved once,
+when the stylesheet is applied, not kept live-bound -- switching the
+system theme while the app is already running leaves those colors stale
+until something explicitly reapplies the stylesheet (a relaunch does this
+for free, since it resolves fresh at construction). Unlike the mac version,
+whose SwiftUI dynamic colors do update live on an appearance change, this
+is an actual behavioral gap between the two ports, not yet fixed here.
 """
 
 from __future__ import annotations
 
 import sys
 
-from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
 from duriancalc.main_window import MainWindow
 from duriancalc.shortcuts import ShortcutStore
 from duriancalc.shortcuts_dialog import ShortcutsDialog
-
-
-def _force_light_palette(app: QApplication) -> None:
-    """The mac version forces .preferredColorScheme(.light) on every scene.
-    Qt has no single global light-mode switch, so this pins the palette
-    roles a dark desktop theme would otherwise override.
-    """
-    palette = QPalette()
-    palette.setColor(QPalette.Window, QColor("#F5F5F5"))
-    palette.setColor(QPalette.WindowText, QColor("#1A1A1A"))
-    palette.setColor(QPalette.Base, QColor("#FFFFFF"))
-    palette.setColor(QPalette.Text, QColor("#1A1A1A"))
-    palette.setColor(QPalette.Button, QColor("#F0F0F0"))
-    palette.setColor(QPalette.ButtonText, QColor("#1A1A1A"))
-    palette.setColor(QPalette.Highlight, QColor("#5C9E33"))
-    palette.setColor(QPalette.HighlightedText, QColor("#FFFFFF"))
-    app.setPalette(palette)
-    app.setStyle("Fusion")
 
 
 def main() -> int:
@@ -66,7 +60,6 @@ def main() -> int:
     # a transient window (there, SwiftUI's hidden Settings backing window;
     # here, the Preferences dialog) closing first must not end the app.
     app.setQuitOnLastWindowClosed(False)
-    _force_light_palette(app)
 
     shortcuts = ShortcutStore()
     window = MainWindow(shortcuts)

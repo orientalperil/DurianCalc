@@ -51,8 +51,23 @@ from PySide6.QtWidgets import (
 
 from duriancalc.evaluator import EvalError, ExpressionEvaluator
 from duriancalc.shortcuts import ShortcutStore
+from duriancalc.theme import colors as theme_colors
 
 _ERROR_COLOR = "#D9822B"  # matches SwiftUI's .orange in this context
+
+
+def _card_style() -> str:
+    c = theme_colors()
+    return f"#card {{ background: {c['base']}; border: 1px solid {c['mid']}; border-radius: 12px; }}"
+
+
+def _divider_style() -> str:
+    return f"color: {theme_colors()['mid']};"
+
+
+def _field_style() -> str:
+    c = theme_colors()
+    return f"background: {c['base']}; color: {c['text']}; border: none;"
 
 
 class _ExpressionLineEdit(QLineEdit):
@@ -120,10 +135,7 @@ class MainWindow(QWidget):
 
         self._card = QFrame(content)
         self._card.setObjectName("card")
-        self._card.setStyleSheet(
-            "#card { background: palette(base); border: 1px solid rgba(0, 0, 0, 0.12);"
-            " border-radius: 12px; }"
-        )
+        self._card.setStyleSheet(_card_style())
         card_layout = QVBoxLayout(self._card)
         card_layout.setContentsMargins(0, 0, 0, 0)
         card_layout.setSpacing(0)
@@ -133,7 +145,7 @@ class MainWindow(QWidget):
 
         self._divider = QFrame(self._card)
         self._divider.setFrameShape(QFrame.HLine)
-        self._divider.setStyleSheet("color: rgba(0, 0, 0, 0.10);")
+        self._divider.setStyleSheet(_divider_style())
         card_layout.addWidget(self._divider)
 
         card_layout.addWidget(self._build_result_row())
@@ -152,6 +164,8 @@ class MainWindow(QWidget):
 
         self._set_result_row_visible(False)
         self._field.setFocus()
+
+        QGuiApplication.styleHints().colorSchemeChanged.connect(self._refresh_theme)
 
     # -- UI construction -------------------------------------------------
 
@@ -207,6 +221,7 @@ class MainWindow(QWidget):
 
         self._field = _ExpressionLineEdit(row)
         self._field.setFrame(False)
+        self._field.setStyleSheet(_field_style())
         self._field.setClearButtonEnabled(True)
         font = self._field.font()
         font.setPointSize(font.pointSize() + 6)
@@ -287,12 +302,29 @@ class MainWindow(QWidget):
 
         self._symbol_label.setText("⚠" if is_error else "=")
         self._result_label.setText(text)
-        color = _ERROR_COLOR if is_error else "palette(text)"
-        self._symbol_label.setStyleSheet(f"color: {color};")
-        self._result_label.setStyleSheet(f"color: {color};")
+        self._apply_result_color()
         self._copy_button.setVisible(not is_error and bool(text))
 
         self._set_result_row_visible(bool(text))
+
+    def _apply_result_color(self) -> None:
+        color = _ERROR_COLOR if self._is_error else theme_colors()["text"]
+        self._symbol_label.setStyleSheet(f"color: {color};")
+        self._result_label.setStyleSheet(f"color: {color};")
+
+    def _refresh_theme(self) -> None:
+        # Rebuilds every stylesheet from a fresh theme_colors() read.
+        # Connected to QStyleHints.colorSchemeChanged so switching the
+        # system theme while the app is already running takes effect
+        # immediately, instead of only on the next relaunch. See
+        # theme.py's docstring for why this queries colorScheme() and
+        # picks explicit colors directly, rather than using QSS
+        # `palette(...)` and trusting QApplication's palette to have
+        # already caught up by the time this runs.
+        self._card.setStyleSheet(_card_style())
+        self._divider.setStyleSheet(_divider_style())
+        self._field.setStyleSheet(_field_style())
+        self._apply_result_color()
 
     def _set_result_row_visible(self, visible: bool) -> None:
         self._result_row.setVisible(visible)
