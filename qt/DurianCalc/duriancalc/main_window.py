@@ -5,9 +5,9 @@ Port of ../../mac/DurianCalc/DurianCalc/ContentView.swift.
 Window-chrome fidelity notes (see PORTING.md section 5):
 - The mac version hosts this in an NSPanel with .utilityWindow styling for
   the thin title bar; there is no portable Linux equivalent, since window
-  decoration is the window manager's job, not the app's. This window uses
-  the Qt.Tool flag, which nudges some window managers toward lighter
-  decoration and degrades gracefully everywhere else.
+  decoration is the window manager's job, not the app's. This window is a
+  plain Qt.Window instead -- no special chrome, but no platform-specific
+  side effects either.
 - Esc-to-clear needs a plain QWidget top level, not QDialog -- QDialog
   swallows Escape as a reject-and-close, which is the exact trap the
   Swift EscKeyHandler exists to work around, in a different costume.
@@ -124,7 +124,7 @@ class MainWindow(QWidget):
         # this hint is silently ignored under KWin Wayland. Getting the
         # same effect there needs a KWin Window Rule instead; see the
         # README's "Always-on-top on Wayland" section.
-        self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | Qt.Window | Qt.WindowStaysOnTopHint)
         self.setMinimumWidth(320)
         self.resize(440, 80)
 

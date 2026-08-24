@@ -197,17 +197,27 @@ window manager, not the app.
 
 Three options, in order of recommendation:
 
-1. **`Qt.Tool` window flag** *(recommended default)*. One line. Many X11 window
-   managers give tool windows lighter decoration; GNOME and most Wayland
-   compositors render them identically to normal windows. Degrades gracefully.
+1. **`Qt.Tool` window flag.** One line. Many X11 window managers give tool
+   windows lighter decoration; GNOME and most Wayland compositors render them
+   identically to normal windows. Degrades gracefully on Linux -- but on
+   macOS it maps to an `NSPanel`, which defaults to hiding itself on every
+   app-focus switch (`NSPanel.hidesOnDeactivate`), the exact default the
+   native Swift app explicitly disables (`hidesOnDeactivate = false` in
+   `DurianCalcApp.swift`). Qt exposes no cross-platform way to override that
+   default; doing so needs a native AppKit call (PyObjC or raw
+   `objc_msgSend` via `ctypes`) reaching past Qt into the real `NSWindow`,
+   for a cosmetic win that only matters on a platform this port doesn't
+   target. Not worth it here.
 2. **Frameless + custom title bar** (`Qt.FramelessWindowHint`). Full control and
    the closest visual match, but you must reimplement drag-to-move (via
    `windowHandle().startSystemMove()`), the close button, and you forfeit WM
    snapping, keyboard move/resize, and tiling-WM cooperation.
-3. **Plain window.** Honest and boring.
+3. **Plain window** *(what this port actually uses)*. Honest and boring, and
+   the only option with no platform-specific side effects to reason about.
 
-Start with option 1 and revisit only if the look matters more than WM
-integration. Record the choice in the README so it is not re-litigated.
+This port uses option 3. `Qt.Tool` was tried first and reverted after it
+caused exactly the macOS disappearing-window problem described above --
+worth remembering if revisiting this decision.
 
 ### Other chrome details
 
