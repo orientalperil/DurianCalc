@@ -158,7 +158,7 @@ class MainWindow(QWidget):
     def _build_menu_bar(self) -> QMenuBar:
         menu_bar = QMenuBar(self)
 
-        file_menu = menu_bar.addMenu("&File")
+        file_menu = menu_bar.addMenu("&DurianCalc")
         settings_action = QAction("&Settings…", self)
         settings_action.setShortcut(QKeySequence("Ctrl+,"))
         settings_action.triggered.connect(self.settings_requested.emit)
