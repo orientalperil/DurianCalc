@@ -28,6 +28,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from duriancalc.desktop_integration import install_if_appimage
 from duriancalc.main_window import MainWindow
 from duriancalc.shortcuts import ShortcutStore
 from duriancalc.shortcuts_dialog import ShortcutsDialog
@@ -53,6 +54,22 @@ def main() -> int:
     # warning is cosmetic -- the app_id is still set correctly regardless
     # of whether portal registration succeeds.
     QApplication.setDesktopFileName("duriancalc")
+
+    # Register this AppImage in the application menu (no-op for a dev
+    # checkout or any non-AppImage run -- see desktop_integration). Done
+    # BEFORE constructing QApplication so that a first launch installs
+    # the entry in time for Qt's own xdg-desktop-portal registration to
+    # find it, which is what silences the "App info not found for
+    # 'duriancalc'" warning described above from the second run onward.
+    #
+    # Deliberately swallows everything: a read-only home, an exotic
+    # XDG_DATA_HOME or a sandbox that blocks subprocesses are all
+    # reasons the menu entry cannot be written, and none of them are a
+    # reason to stop the user from doing arithmetic.
+    try:
+        install_if_appimage()
+    except Exception as exc:  # noqa: BLE001 - best-effort side effect
+        print(f"duriancalc: skipping desktop integration ({exc})", file=sys.stderr)
 
     app = QApplication(sys.argv)
     # We decide when to quit ourselves (see MainWindow.closeEvent), the same

@@ -49,6 +49,13 @@ cp "packaging/$BIN_NAME.png" "$APPDIR/$BIN_NAME.png"
 cat > "$APPDIR/AppRun" <<'EOF'
 #!/usr/bin/env bash
 HERE="$(dirname "$(readlink -f "${0}")")"
+# The AppImage runtime already exports APPDIR (and APPIMAGE, the path of
+# the .AppImage file itself), but only when the app is launched through
+# that runtime -- running AppRun directly out of an extracted AppDir, as
+# `--appimage-extract` users and this script's own smoke test do, leaves
+# it unset. Exporting it here means duriancalc/desktop_integration.py
+# has one dependable way to find the bundled icon either way.
+export APPDIR="$HERE"
 exec "$HERE/usr/bin/duriancalc" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"

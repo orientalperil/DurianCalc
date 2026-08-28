@@ -113,6 +113,8 @@ ln -s "$PWD/packaging/duriancalc.desktop" ~/.local/share/applications/duriancalc
 - `duriancalc/evaluator.py` — tokenizer + recursive-descent parser/evaluator
 - `duriancalc/shortcuts.py` — user-defined shortcuts, persisted to QSettings
 - `duriancalc/shortcuts_dialog.py` — the preferences pane for editing shortcuts
+- `duriancalc/desktop_integration.py` — registers the running AppImage in the
+  application menu (no-op outside an AppImage)
 
 ## Building an AppImage
 
@@ -133,6 +135,31 @@ chmod +x dist/DurianCalc-x86_64.AppImage
 **Build it on the oldest distribution you intend to support** (an Ubuntu 22.04
 container works well). AppImages are forward-compatible but not backward-
 compatible — one built on a rolling release will only run on a rolling release.
+
+### Application-menu registration
+
+Running the AppImage is all it takes to make DurianCalc appear in the desktop's
+app list and search — on launch it installs its own entry and icon:
+
+- `~/.local/share/applications/duriancalc.desktop`
+- `~/.local/share/icons/hicolor/256x256/apps/duriancalc.png`
+
+The entry's `Exec` is an absolute path to the `.AppImage`, so it is rechecked
+and rewritten on every launch: move the file (or swap in a new version under a
+different name) and starting it once repairs the menu entry, rather than
+leaving a launcher pointing at a path that no longer exists. When nothing has
+changed the launch touches no files.
+
+Registration is skipped when a system-wide `duriancalc.desktop` already exists
+on `$XDG_DATA_DIRS` (a packaged install wins, so the menu never shows two
+entries), and when a `duriancalc.desktop` is present that the app did not
+generate — hand-edited entries are never overwritten. Files it does generate
+are tagged with `X-DurianCalc-Generated=true`; delete yours to hand control
+back to the app. To opt out entirely, e.g. for a portable copy:
+
+```bash
+DURIANCALC_NO_DESKTOP_INTEGRATION=1 ./DurianCalc-x86_64.AppImage
+```
 
 ## Development
 

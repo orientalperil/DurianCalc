@@ -5,5 +5,7 @@ Comment=A minimal, expression-based calculator
 Exec=duriancalc
 Icon=duriancalc
 Categories=Utility;Calculator;Qt;
+Keywords=calculator;calc;math;expression;arithmetic;durian;
 Terminal=false
 StartupNotify=true
+StartupWMClass=duriancalc
