@@ -37,6 +37,7 @@ poetry run pyinstaller \
     --distpath "$DIST_DIR" \
     --workpath "$BUILD_DIR/pyinstaller" \
     --specpath "$BUILD_DIR" \
+    --add-data "$ROOT/packaging/$BIN_NAME.png:." \
     "duriancalc/__main__.py"
 
 echo "==> Assembling AppDir"

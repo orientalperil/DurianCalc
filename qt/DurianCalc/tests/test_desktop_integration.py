@@ -134,3 +134,42 @@ def test_opt_out_env_var(monkeypatch: pytest.MonkeyPatch, bundle: tuple[Path, Pa
     monkeypatch.setenv("APPDIR", str(appdir))
     monkeypatch.setenv("DURIANCALC_NO_DESKTOP_INTEGRATION", "1")
     assert di.install_if_appimage() is False
+
+
+def test_bundled_icon_prefers_the_frozen_bundle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    meipass = tmp_path / "frozen"
+    meipass.mkdir()
+    (meipass / f"{di.APP_ID}.png").write_bytes(b"frozen")
+    appdir = tmp_path / "mount"
+    appdir.mkdir()
+    (appdir / f"{di.APP_ID}.png").write_bytes(b"appdir")
+    monkeypatch.setattr(di.sys, "_MEIPASS", str(meipass), raising=False)
+    monkeypatch.setenv("APPDIR", str(appdir))
+
+    assert di.bundled_icon() == meipass / f"{di.APP_ID}.png"
+
+
+def test_bundled_icon_falls_back_to_the_appdir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    appdir = tmp_path / "mount"
+    appdir.mkdir()
+    (appdir / f"{di.APP_ID}.png").write_bytes(b"appdir")
+    monkeypatch.delattr(di.sys, "_MEIPASS", raising=False)
+    monkeypatch.setenv("APPDIR", str(appdir))
+
+    assert di.bundled_icon() == appdir / f"{di.APP_ID}.png"
+
+
+def test_bundled_icon_finds_the_dev_checkout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """With no bundle in sight, packaging/duriancalc.png must resolve --
+    this is the path a plain `poetry run duriancalc` takes."""
+    monkeypatch.delattr(di.sys, "_MEIPASS", raising=False)
+    monkeypatch.delenv("APPDIR", raising=False)
+
+    found = di.bundled_icon()
+    assert found is not None
+    assert found.name == f"{di.APP_ID}.png"
+    assert found.is_file()

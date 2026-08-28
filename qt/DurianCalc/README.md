@@ -150,6 +150,18 @@ different name) and starting it once repairs the menu entry, rather than
 leaving a launcher pointing at a path that no longer exists. When nothing has
 changed the launch touches no files.
 
+The app also sets its own window icon from the copy of the PNG inside the
+bundle, which is what the task bar draws. This is deliberately independent of
+the icon installed above: a desktop session caches the icon theme at login, so
+a panel that was already running when the icon was installed draws a blank
+square for the window until the next login. An icon carried on the window
+itself (Wayland's `xdg-toplevel-icon`, `_NET_WM_ICON` under X11) sidesteps that
+cache, so the task bar is correct on the very first launch.
+
+The *menu* icon has no such escape hatch — it is resolved from the theme by the
+desktop shell — so on a brand-new install the application-menu entry may appear
+without its icon until the next login, even while the task bar shows it.
+
 Registration is skipped when a system-wide `duriancalc.desktop` already exists
 on `$XDG_DATA_DIRS` (a packaged install wins, so the menu never shows two
 entries), and when a `duriancalc.desktop` is present that the app did not

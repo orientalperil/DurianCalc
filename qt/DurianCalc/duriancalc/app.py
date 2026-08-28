@@ -26,9 +26,10 @@ from __future__ import annotations
 
 import sys
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
-from duriancalc.desktop_integration import install_if_appimage
+from duriancalc.desktop_integration import bundled_icon, install_if_appimage
 from duriancalc.main_window import MainWindow
 from duriancalc.shortcuts import ShortcutStore
 from duriancalc.shortcuts_dialog import ShortcutsDialog
@@ -72,6 +73,21 @@ def main() -> int:
         print(f"duriancalc: skipping desktop integration ({exc})", file=sys.stderr)
 
     app = QApplication(sys.argv)
+
+    # Carry the icon on the window itself rather than leaving the task
+    # bar to look it up by app_id. The desktop entry installed above is
+    # what puts DurianCalc in the application menu, but a panel that has
+    # been running since before that entry existed has already cached the
+    # icon theme and will draw a blank square for this window until the
+    # next login -- setting it here fills that gap on the very first
+    # launch, and covers X11 and bare-WM sessions that never consult a
+    # desktop entry at all. Must follow QApplication construction so the
+    # platform plugin is live to forward it (Wayland's
+    # xdg-toplevel-icon; _NET_WM_ICON under X11).
+    icon_path = bundled_icon()
+    if icon_path is not None:
+        app.setWindowIcon(QIcon(str(icon_path)))
+
     # We decide when to quit ourselves (see MainWindow.closeEvent), the same
     # deliberate choice DurianCalcApp.swift documents for the same reason:
     # a transient window (there, SwiftUI's hidden Settings backing window;
