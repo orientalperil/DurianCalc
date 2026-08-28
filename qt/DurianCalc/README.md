@@ -162,6 +162,30 @@ The *menu* icon has no such escape hatch — it is resolved from the theme by th
 desktop shell — so on a brand-new install the application-menu entry may appear
 without its icon until the next login, even while the task bar shows it.
 
+### Removing it again
+
+Run the AppImage once with `--uninstall`, **before** deleting the file:
+
+```bash
+./DurianCalc-x86_64.AppImage --uninstall
+```
+
+That deletes the entry and the icon, refreshes the caches, and exits without
+opening a window (it needs no display, so it works over SSH too). It only
+removes files carrying the `X-DurianCalc-Generated` marker — a `duriancalc.desktop`
+you wrote yourself is left alone, along with the icon it names, and the command
+exits non-zero to say so.
+
+The ordering matters, because a deleted AppImage cannot clean up after itself:
+its entry stays in the launcher pointing at a path that no longer exists.
+Self-healing rescues a *moved* AppImage, since it runs again from the new
+location and rewrites `Exec`, but nothing can rescue a deleted one. If you
+delete first and remember afterwards, remove the two files by hand:
+
+```bash
+rm -f ~/.local/share/applications/duriancalc.desktop ~/.local/share/icons/hicolor/256x256/apps/duriancalc.png
+```
+
 Registration is skipped when a system-wide `duriancalc.desktop` already exists
 on `$XDG_DATA_DIRS` (a packaged install wins, so the menu never shows two
 entries), and when a `duriancalc.desktop` is present that the app did not

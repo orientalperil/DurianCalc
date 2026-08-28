@@ -29,13 +29,23 @@ import sys
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
-from duriancalc.desktop_integration import bundled_icon, install_if_appimage
+from duriancalc.desktop_integration import bundled_icon, install_if_appimage, uninstall
 from duriancalc.main_window import MainWindow
 from duriancalc.shortcuts import ShortcutStore
 from duriancalc.shortcuts_dialog import ShortcutsDialog
 
 
 def main() -> int:
+    # Handled before anything Qt-related so that uninstalling never
+    # flashes a window, and so it still works on a machine where the GUI
+    # cannot start at all. Tested with a plain membership check rather
+    # than argparse because the REST of argv belongs to Qt (-style,
+    # -platform, -widgetcount, ...); a parser here would reject every
+    # one of those unless taught the whole list, and Qt would stop
+    # seeing them.
+    if "--uninstall" in sys.argv[1:]:
+        return uninstall()
+
     QApplication.setOrganizationName("DurianCalc")
     QApplication.setApplicationName("DurianCalc")
     # Sets the Wayland app_id / X11 WM_CLASS to "duriancalc" -- without

@@ -173,3 +173,59 @@ def test_bundled_icon_finds_the_dev_checkout(monkeypatch: pytest.MonkeyPatch) ->
     assert found is not None
     assert found.name == f"{di.APP_ID}.png"
     assert found.is_file()
+
+
+def test_uninstall_removes_what_install_created(
+    tmp_path: Path, bundle: tuple[Path, Path]
+) -> None:
+    appimage, appdir = bundle
+    home = tmp_path / "data"
+    di.install(appimage, appdir, data_home=home)
+    assert entry_of(home).exists() and icon_of(home).exists()
+
+    assert di.uninstall(data_home=home) == 0
+
+    assert not entry_of(home).exists()
+    assert not icon_of(home).exists()
+
+
+def test_uninstall_refuses_a_hand_written_entry(tmp_path: Path) -> None:
+    home = tmp_path / "data"
+    entry = entry_of(home)
+    entry.parent.mkdir(parents=True)
+    mine = "[Desktop Entry]\nType=Application\nName=Mine\nExec=/somewhere\n"
+    entry.write_text(mine)
+    icon = icon_of(home)
+    icon.parent.mkdir(parents=True)
+    icon.write_bytes(b"my-icon")
+
+    assert di.uninstall(data_home=home) == 1
+
+    # Both survive: the icon is spared with the entry that names it.
+    assert entry.read_text() == mine
+    assert icon.read_bytes() == b"my-icon"
+
+
+def test_uninstall_is_clean_when_nothing_is_installed(tmp_path: Path) -> None:
+    assert di.uninstall(data_home=tmp_path / "data") == 0
+
+
+def test_uninstall_removes_an_orphaned_icon(tmp_path: Path) -> None:
+    """Entry already gone by hand, icon left behind: still tidy up."""
+    home = tmp_path / "data"
+    icon = icon_of(home)
+    icon.parent.mkdir(parents=True)
+    icon.write_bytes(b"stale")
+
+    assert di.uninstall(data_home=home) == 0
+    assert not icon.exists()
+
+
+def test_uninstall_then_install_round_trips(tmp_path: Path, bundle: tuple[Path, Path]) -> None:
+    appimage, appdir = bundle
+    home = tmp_path / "data"
+    di.install(appimage, appdir, data_home=home)
+    di.uninstall(data_home=home)
+
+    assert di.install(appimage, appdir, data_home=home) is True
+    assert f"Exec={appimage}" in entry_of(home).read_text()
